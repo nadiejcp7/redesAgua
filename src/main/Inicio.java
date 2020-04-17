@@ -21,9 +21,10 @@ public class Inicio {
 
     public static void main(String[] args) throws InterruptedException, IOException, Exception {
         //Simple way to create a pipeline network
-        //See files nodos.csv (for nodes) and tubos.csv (for pipelines) in resources
-        nodos = CargarDatos.nodos("Nodos.csv", ",");
-        tubos = CargarDatos.tubos("Tubos.csv", ",", nodos, null);
+        //See files nodes.txt (for nodes), tanks.txt (for tanks) and pipelines.txt (for pipelines) in resources
+        nodos = CargarDatos.nodos("nodes.txt", ",");
+        tanques = CargarDatos.tanques("tanks.txt", ",");
+        tubos = CargarDatos.tubos("pipelines.txt", ",", nodos, null);
         for (Nodo n : nodos) {
             n.distribuirCaudales();
             for (Tubo tu1 : tubos) {
@@ -44,7 +45,7 @@ public class Inicio {
 
         //if you have tanks, run as follows.
         nodos = CargarDatos.nodos("Nodos.csv", ",");
-        tanques = CargarDatos.tanques("Tanques.csv", ",");//See file tanques.csv (for tanks) in resources
+        
         tubos = CargarDatos.tubos("Tubos.csv", ",", nodos, tanques);
         for (Tanque n : tanques) {
             n.iniciar(segundos);
@@ -84,15 +85,12 @@ public class Inicio {
     }
     
     private static void executeTaskTanque(int segundos) {
-        for (Tanque n : tanques) {
-            n.iniciar(segundos);
-        }
         for (Nodo n : nodos) {
             n.calcular();
         }
         for (Tanque ta : tanques) {
             //print parameters you need
-            System.out.println("Tank: " + ta.nombre() + " - Water volume: " + ta.volumeAgua() + " m.");
+            System.out.println("Tank: " + ta.nombre() + " - Water volume: " + ta.volumeAgua() + " m3.");
         }
         for (Tubo t : tubos) {
             //print parameters you need
@@ -102,8 +100,10 @@ public class Inicio {
             //print parameters you need to evaluate
             System.out.println("Node " + n.nombre() + " - Pressure: " + n.presion() + " m.");
         }
+        for (Tanque n : tanques) {
+            n.iniciar(segundos);
+        }
         System.out.println("");
     }
    
-}
-    
+}    
