@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package componentes;
 
 import java.util.ArrayList;
@@ -291,6 +286,10 @@ public class Nodo {
             if (!iniciado) {
                 iniciado = true;
                 presion = pf;
+            } else {
+                if (pf > presion) {
+                    presion = pf;
+                }
             }
         }
         for (float entradaConstante1 : entradaConstante) {
@@ -438,11 +437,11 @@ public class Nodo {
     private void distribuir() {
         double areaTotal = 0;
         for (Tubo salida1 : salida) {
-            areaTotal += Math.pow(salida1.diametro() / 2, 2) * Math.PI;
+            areaTotal += salida1.area();
         }
         caudal = new float[salida.size()];
         for (int i = 0; i < caudal.length; i++) {
-            caudal[i] = (float) (Math.pow(salida.get(i).diametro() / 2, 2) * Math.PI * Qin / areaTotal);
+            caudal[i] = (float) (salida.get(i).area() * Qin / areaTotal);
         }
     }
 }
