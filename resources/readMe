@@ -1,0 +1,32 @@
+nodes.txt, tanks.txt and pipelines.txt are data used for scheme.png example.
+
+All three .txt files need to have a head as shown in file. 
+
+nodes.txt has 7 columns:
+  name = node's name.
+  x = longitude coordinate.
+  y = latitude coordinate.
+  z = height or altitude over sea level in meteres.
+  enterflow = if node has some constant flow entering, otherwise 0 or just leave it empty (m3/s).
+  enterPressure = pressure that node has in the beginnig, could be a pump in meters (water altitude equivalent).
+  outputflow = if node has a constant flow coming out or if pipe is broke and it is losing water (m3/s).
+
+tanks.txt has 7 columns:
+  name = tank's name.
+  x = longitude coordinate.
+  y = latitude coordinate.
+  z = height or altitude over sea level in meters.
+  startHeight = height at which water in the tank starts in meters.
+  maxHeight = max height of the tank in meters.
+  volume = tank's volume in cubic meters.
+
+pipelines.txt has 7 columns:
+  name = pipeline's name.
+  start = put the name of the tank or node where this pipeline starts.
+  end = put the name of the tank or node where this pipeline ends.
+  diameter = inner diameter of pipeline in meters.
+  length = represents the longitude of the pipeline in meters.
+  rugosity = is a coefficient used according to the material. 0.0015 for PVC.
+  k-coefficients: are values for local losses as valves or similars, if there are more than one, do it like this 0.4/0.2/0.6
+  
+For coordinates, use a system you are familiar with. I do recommend use international system for units (as mentioned), do not change it, since calculations can lose accuracy. It is important to put nodes in order, otherwise, results will be out of date.
