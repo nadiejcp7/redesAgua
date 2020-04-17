@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package componentes;
 
 import java.util.List;
@@ -13,7 +8,7 @@ import java.util.List;
  */
 public class Tubo {
 
-    private final float longitud, rugosidad, d, p, u, g;
+    private final float longitud, rugosidad, d, p, u, g, area;
     private float f, v, Q, reynolds;
     private final float[] k;
     private final Nodo fin, inicio;
@@ -48,6 +43,7 @@ public class Tubo {
         this.fin = fin;
         this.inicio1 = inicio1;
         this.fin1 = fin1;
+        this.area = (float) (Math.pow(d / 2, 2) * Math.PI);
         this.code = generarCode();
         if (inicio == null && inicio1 == null) {
             throw new Exception("Tubería debe tener un nodo o tanque de inicio.");
@@ -186,10 +182,10 @@ public class Tubo {
     private void encontrarValores() {
         if (inicio != null) {
             Q = inicio.caudalSalida(code);
-            this.v = (float) (Q / (Math.pow(d / 2, 2) * Math.PI));
+            this.v = Q / area;
         } else {
             v = inicio1.velocidadSalida(0);
-            this.Q = (float) (Math.pow(d / 2, 2) * Math.PI * v);
+            this.Q = area * v;
         }
     }
 
@@ -364,5 +360,13 @@ public class Tubo {
             code += String.valueOf(value);
         }
         return Long.parseLong(code);
+    }
+
+    /**
+     *
+     * @return area del tubo en m2
+     */
+    public float area() {
+        return area;
     }
 }
