@@ -1,0 +1,2 @@
+Name,X,Y,Z,StartHeight,MaxHeight,Volume
+Tank1,-90.32176,-0.6938337,200,0.1,4.25,1000
