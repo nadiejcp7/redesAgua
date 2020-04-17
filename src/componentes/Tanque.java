@@ -1,14 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package componentes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
@@ -18,8 +11,8 @@ public class Tanque {
 
     final float z, x, y;
     private final float d, hMax, g;
-    private float h, caudalEntrada, caudalPrevio;
-    private List<Tubo> salida;
+    private float h, entradaCaudal;
+    private List<Tubo> salida, entrada;
     String nombre;
 
     public Tanque(String nombre, float vol, float hMax, float h, float x, float y, float z) {
@@ -30,13 +23,14 @@ public class Tanque {
         this.d = (float) (Math.sqrt(vol / (hMax * Math.PI)) * 2);
         this.hMax = hMax;
         this.h = h;
-        this.g = 9.8F;
+        this.g = 9.80665F;
         salida = new ArrayList<>();
-        caudalEntrada = caudalPrevio = 0;
+        entrada = new ArrayList<>();
+        entradaCaudal = 0;
     }
 
     public Tanque(String[] tanque) {
-        this(tanque[0], Float.parseFloat(tanque[8]), Float.parseFloat(tanque[7]), Float.parseFloat(tanque[6]),
+        this(tanque[0], Float.parseFloat(tanque[6]), Float.parseFloat(tanque[5]), Float.parseFloat(tanque[4]),
                 Float.parseFloat(tanque[1]), Float.parseFloat(tanque[2]), Float.parseFloat(tanque[3]));
     }
 
@@ -58,45 +52,34 @@ public class Tanque {
 
     /**
      *
-     * @param entrada el caudal que ingresa al tanque en m3/s
+     * @param t el tubo que ingresa al tanque
      */
-    public void agregarEntrada(float entrada) {
-        caudalEntrada += entrada;
+    public void agregarEntrada(Tubo t) {
+        entrada.add(t);
     }
 
-    public double volume() {
+    public float volumeMaximo() {
+        return (float) (Math.pow(d / 2, 2) * Math.PI * hMax);
+    }
+
+    public double volumeAgua() {
         if (h > 0) {
             return Math.pow(d / 2, 2) * Math.PI * h;
         }
         return 0;
     }
 
-    public void iniciar() {
-        final int segundos = 5;
-        Timer t = new Timer();
-        TimerTask tt1 = new TimerTask() {
-            @Override
-            public void run() {
-                float caudalSalida = 0;
-                float velocidad = velocidadSalida(0);
-                for (Tubo tubo : salida) {
-                    caudalSalida += Math.pow(tubo.diametro() / 2, 2) * velocidad;
-                }
-                h += segundos * (caudalEntrada - caudalSalida) / (Math.PI * Math.pow(d / 2, 2));
-                if (h < 0) {
-                    h = 0;
-                } else if (h >= hMax) {
-                    h = hMax;
-                    caudalPrevio = caudalEntrada;
-                    caudalEntrada = 0;
-                } else {
-                    if (caudalEntrada == 0) {
-                        caudalEntrada = caudalPrevio;
-                    }
-                }
-            }
-        };
-        t.scheduleAtFixedRate(tt1, 0, segundos * 1000);
+    public void iniciar(int segundos) {
+        float caudalSalida = 0;
+        float velocidad = velocidadSalida(0);
+        for (Tubo tubo : salida) {
+            caudalSalida += tubo.area() * velocidad;
+        }
+        float caudalEntrada = entradaCaudal;
+        for (Tubo t : entrada) {
+            caudalEntrada += t.caudal();
+        }
+        h += segundos * (caudalEntrada - caudalSalida) / (Math.PI * Math.pow(d / 2, 2));
     }
 
     public float presion() {
@@ -124,6 +107,10 @@ public class Tanque {
 
     public List<Tubo> salida() {
         return salida;
+    }
+
+    public void agregarEntradaConstante(float f) {
+        entradaCaudal += f;
     }
 
 }
