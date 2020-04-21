@@ -154,17 +154,9 @@ public class Tubo {
         encontrarValores();
         float perdidas = perdidas(Q);
         if (inicio != null) {
-            float h = inicio.presion();
-            if (h == 0) {
-                return 0;
-            }
-            return h - perdidas;
+            return inicio.presion() - perdidas;
         } else {
-            float h = inicio1.presion();
-            if (h == 0) {
-                return 0;
-            }
-            return h - perdidas;
+            return inicio1.presion() - perdidas;
         }
     }
 
