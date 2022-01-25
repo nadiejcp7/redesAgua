@@ -14,56 +14,40 @@ import java.util.List;
 public class ImportarFile {
 
     private final String delimitador;
-    private List<String> lineas;
-    public int numCols;
-    public int numRows;
+    public int numCols = 0, numRows = 0;
     private String[][] archivo;
     private boolean abierto = false;
     private final File documento;
-    boolean esMatrix;
-
-    public ImportarFile(String ruta) throws IOException {
-        this(ruta, "");
-    }
-
-    public ImportarFile(File file) throws IOException {
-        this(file, "");
-    }
-
-    public ImportarFile(String ruta, String delimitador) throws IOException {
-        this(new File(ruta), delimitador);
-    }
 
     public ImportarFile(File file, String delimitador) throws IOException {
-        documento = file;
+        this.documento = file;
         this.delimitador = delimitador;
-        esMatrix = !delimitador.isEmpty();
-        numRows = 0;
-        numCols = 0;
         abrir();
     }
 
     private void abrir() throws IOException {
-        lineas = new ArrayList<>();
-        try (FileReader fr = new FileReader(documento)) {
-            BufferedReader reader = new BufferedReader(fr);
-            String linea = reader.readLine();
-            while (linea != null) {
-                lineas.add(linea);
-                linea = reader.readLine();
+        List<String> lineas = new ArrayList<>();
+        if (documento != null) {
+            try (FileReader fr = new FileReader(documento)) {
+                BufferedReader reader = new BufferedReader(fr);
+                String linea = reader.readLine();
+                while (linea != null) {
+                    lineas.add(linea);
+                    linea = reader.readLine();
+                }
+                abierto = true;
             }
-            abierto = true;
-        }
-        if (!lineas.isEmpty() && esMatrix) {
-            numRows = lineas.size();
-            numCols = max();
-            if (numCols > 0) {
-                aVector();
+            if (!lineas.isEmpty() && !delimitador.isEmpty()) {
+                numRows = lineas.size();
+                numCols = max(lineas);
+                if (numCols > 0) {
+                    aVector(lineas);
+                }
             }
         }
     }
 
-    private int max() {
+    private int max(List<String> lineas) {
         int numero = lineas.get(0).split(delimitador).length;
         for (int i = 1; i < lineas.size(); i++) {
             int longitud = lineas.get(i).split(delimitador).length;
@@ -74,7 +58,7 @@ public class ImportarFile {
         return numero;
     }
 
-    private void aVector() {
+    private void aVector(List<String> lineas) {
         archivo = new String[numRows][numCols];
         for (int i = 0; i < archivo.length; i++) {
             archivo[i] = lineas.get(i).split(delimitador);
@@ -83,43 +67,9 @@ public class ImportarFile {
 
     public String[][] enCaracteres() {
         if (abierto) {
-            if (esMatrix) {
+            if (!delimitador.isEmpty()) {
                 return archivo;
             }
-        }
-        return null;
-    }
-
-    public List<String> leer() {
-        if (abierto) {
-            return lineas;
-        }
-        return null;
-    }
-
-    public String[] lineas() {
-        if (lineas.isEmpty()) {
-            return null;
-        }
-        String[] linea = new String[lineas.size()];
-        for (int i = 0; i < linea.length; i++) {
-            linea[i] = lineas.get(i);
-        }
-        return linea;
-    }
-
-    public double[][] enNumeros(int inicioRow, int inicioCol, int finRow, int finCol) {
-        if (abierto && !lineas.isEmpty()) {
-            if (!esMatrix) {
-                return null;
-            }
-            double[][] numeros = new double[numRows - inicioRow][numCols - inicioCol];
-            for (int i = inicioRow; i < finRow; i++) {
-                for (int j = inicioCol; j < finCol; j++) {
-                    numeros[i - inicioRow][j - inicioCol] = Double.parseDouble(archivo[i][j]);
-                }
-            }
-            return numeros;
         }
         return null;
     }
