@@ -27,15 +27,6 @@ public class Inicio {
         tubos = CargarDatos.tubos(findFile("pipelines", f), data[1], nodos, tanques);
     }
 
-    public static void main(String[] args) throws Exception {
-        if (args == null || args.length < 2) {
-            throw new Exception("There is not enough arguments for this program to start. You need to load directory where files are located");
-        } else {
-            Inicio inicio = new Inicio(args);
-            inicio.ejercicio();
-        }
-    }
-
     private void executeTask() {
         for (Nodo n : nodos) {
             n.calcular();
@@ -109,5 +100,14 @@ public class Inicio {
             }
         }
         return null;
+    }
+ 
+    public static void main(String[] args) throws Exception {
+        if (args == null || args.length < 2) {
+            throw new Exception("There is not enough arguments for this program to start. You need to load directory where files are located");
+        } else {
+            Inicio inicio = new Inicio(args);
+            inicio.ejercicio();
+        }
     }
 }
