@@ -1,9 +1,10 @@
 package main;
 
+import leerArchivos.CargarDatos;
 import componentes.Nodo;
 import componentes.Tanque;
 import componentes.Tubo;
-import java.io.IOException;
+import java.io.File;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,61 +16,27 @@ import java.util.TimerTask;
  
 public class Inicio {
 
-    static List<Nodo> nodos;
-    static List<Tubo> tubos;
-    static List<Tanque> tanques;
+    List<Nodo> nodos;
+    List<Tubo> tubos;
+    List<Tanque> tanques;
 
-    public static void main(String[] args) throws InterruptedException, IOException, Exception {
-        //Simple way to create a pipeline network
-        //See files nodes.txt (for nodes), tanks.txt (for tanks) and pipelines.txt (for pipelines) in resources
-        nodos = CargarDatos.nodos("nodes.txt", ",");
-        tanques = CargarDatos.tanques("tanks.txt", ",");
-        tubos = CargarDatos.tubos("pipelines.txt", ",", nodos, null);
-        for (Nodo n : nodos) {
-            n.distribuirCaudales();
-            for (Tubo tu1 : tubos) {
-                tu1.caudal();
-            }
-        }
-        final int segundos = 5;
-        //execute the following just if you need to monitore in real time. For simple calculations, just run executeTask() method
-        Timer timer = new Timer();
-        TimerTask tt1 = new TimerTask() {
-            @Override
-            public void run() {
-                executeTask();
-            }
-        };
-        //executes task every 'segundos' seconds
-        timer.scheduleAtFixedRate(tt1, 0, segundos * 1000);
-
-        //if you have tanks, run as follows.
-        nodos = CargarDatos.nodos("Nodos.csv", ",");
-        
-        tubos = CargarDatos.tubos("Tubos.csv", ",", nodos, tanques);
-        for (Tanque n : tanques) {
-            n.iniciar(segundos);
-        }
-        for (Nodo n : nodos) {
-            n.distribuirCaudales();
-            for (Tubo tu1 : tubos) {
-                tu1.caudal();
-            }
-        }
-        final int seconds = 5;
-        //execute the following just if you need to monitore in real time. For simple calculations, just run executeTask() method
-        Timer timer1 = new Timer();
-        TimerTask tt = new TimerTask() {
-            @Override
-            public void run() {
-                executeTaskTanque(seconds);
-            }
-        };
-        //executes task every 'segundos' seconds
-        timer1.scheduleAtFixedRate(tt, 0, seconds * 1000);
+    public Inicio(String[] data) throws Exception {
+        File[] f = new File(data[0]).listFiles();
+        nodos = CargarDatos.nodos(findFile("nodes", f), data[1]);
+        tanques = CargarDatos.tanques(findFile("tanks", f), data[1]);
+        tubos = CargarDatos.tubos(findFile("pipelines", f), data[1], nodos, tanques);
     }
 
-    private static void executeTask() {
+    public static void main(String[] args) throws Exception {
+        if (args == null || args.length < 2) {
+            throw new Exception("There is not enough arguments for this program to start. You need to load directory where files are located");
+        } else {
+            Inicio inicio = new Inicio(args);
+            inicio.ejercicio();
+        }
+    }
+
+    private void executeTask() {
         for (Nodo n : nodos) {
             n.calcular();
         }
@@ -83,8 +50,8 @@ public class Inicio {
         }
         System.out.println("");
     }
-    
-    private static void executeTaskTanque(int segundos) {
+
+    private void executeTaskTanque(int segundos) {
         for (Nodo n : nodos) {
             n.calcular();
         }
@@ -94,7 +61,7 @@ public class Inicio {
         }
         for (Tubo t : tubos) {
             //print parameters you need
-            System.out.println("Pipeline: " + t.nombre() + " - Friction losses: " + t.hf() + " m.");
+            System.out.println("Pipeline: " + t.nombre() + " - Friction losses: " + t.hf() + " m. Flow: " + t.caudal());
         }
         for (Nodo n : nodos) {
             //print parameters you need to evaluate
@@ -105,5 +72,42 @@ public class Inicio {
         }
         System.out.println("");
     }
-   
-}    
+
+    public void ejercicio() throws Exception {
+        if(tubos.isEmpty() || nodos.isEmpty()){
+            throw new Exception("Files where pipelines or nodes info are corrupted or do not exist");
+        }
+        for (Tubo tu1 : tubos) {
+            tu1.caudal();
+        }
+        for (Nodo n : nodos) {
+            n.distribuirCaudales();
+            for (Tubo tu1 : tubos) {
+                tu1.caudal();
+            }
+        }
+        final int seconds = 5;
+        Timer timer1 = new Timer();
+        TimerTask tt = new TimerTask() {
+            @Override
+            public void run() {
+                if (tanques.isEmpty()) {
+                    executeTask();
+                } else {
+                    executeTaskTanque(seconds);
+                }
+            }
+        };
+        //executes task every 'segundos' seconds
+        timer1.scheduleAtFixedRate(tt, 0, seconds * 1000);
+    }
+
+    private File findFile(String name, File[] f) {
+        for (File f1 : f) {
+            if (f1.getName().startsWith(name)) {
+                return f1;
+            }
+        }
+        return null;
+    }
+}
